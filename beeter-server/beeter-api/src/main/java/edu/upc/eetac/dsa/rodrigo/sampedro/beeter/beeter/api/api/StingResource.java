@@ -14,6 +14,12 @@ import javax.ws.rs.PUT;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
+import javax.ws.rs.QueryParam;
+import javax.ws.rs.core.CacheControl;
+import javax.ws.rs.core.Context;
+import javax.ws.rs.core.EntityTag;
+import javax.ws.rs.core.Request;
+import javax.ws.rs.core.Response;
 
 import edu.upc.eetac.dsa.rodrigo.sampedro.beeter.beeter.api.model.Sting;
 import edu.upc.eetac.dsa.rodrigo.sampedro.beeter.beeter.api.model.StingCollection;
@@ -26,8 +32,34 @@ public class StingResource {
 	// datos
 	@GET
 	@Produces(MediaType.BEETER_API_STING_COLLECTION)
-	public StingCollection getStings() {
+	public StingCollection getStings(@QueryParam("username") String username,
+			@QueryParam("offset") String offset,
+			@QueryParam("length") String length) {
+
+		if ((offset == null) || (length == null))
+			throw new BadRequestException(
+					"offset and length are mandatory parameters");
+		int ioffset, ilength;
+		try {
+			ioffset = Integer.parseInt(offset);
+			if (ioffset < 0)
+				throw new NumberFormatException();
+		} catch (NumberFormatException e) {
+			throw new BadRequestException(
+					"offset must be an integer greater or equal than 0.");
+		}
+		try {
+			ilength = Integer.parseInt(length);
+			if (ilength < 1)
+				throw new NumberFormatException();
+		} catch (NumberFormatException e) {
+			throw new BadRequestException(
+					"length must be an integer greater or equal than 0.");
+		}
+
 		StingCollection stings = new StingCollection();
+
+		Statement stmt = null;
 
 		// arrancamos la conexion
 		Connection conn = null;
@@ -42,8 +74,17 @@ public class StingResource {
 		// hacemso la consulta y el array de stings
 		try {
 			// creamos el statement y la consulta
-			Statement stmt = conn.createStatement();
-			String sql = "select users.name, stings.* from users, stings where users.username=stings.username";
+			stmt = conn.createStatement();
+			String sql;
+			if (username == null) {
+				sql = "select users.name, stings.* from users, stings where users.username=stings.username ORDER BY last_modified DESC limit "
+						+ offset + "," + length + " ";
+			} else {
+				sql = "select users.name, stings.* from users, stings where users.username=stings.username and stings.username='"
+						+ username
+						+ "' ORDER BY last_modified DESC limit "
+						+ offset + "," + length + " ";
+			}
 			// realizamos la consulta
 			ResultSet rs = stmt.executeQuery(sql);
 			while (rs.next()) {
@@ -53,20 +94,25 @@ public class StingResource {
 				sting.setAuthor(rs.getString("name"));
 				sting.setContent(rs.getString("content"));
 				sting.setSubject(rs.getString("subject"));
-				sting.setcreationTimestamp(rs
-						.getTimestamp("creation_timestamp"));
+				sting.setLastModified(rs.getTimestamp("last_modified"));
 
 				// añadimos el sting a la lista
 				stings.addSting(sting);
 			}
 			rs.close();
-			stmt.close();
-			// devolvemos a tomcat la conexion
-			conn.close();
+
 		} catch (SQLException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 			throw new InternalServerException(e.getMessage());
+		} finally {
+
+			try {
+				stmt.close();
+				conn.close();
+			} catch (Exception e) {
+				e.printStackTrace();
+			}
 		}
 
 		// devolvemos el sting
@@ -79,13 +125,15 @@ public class StingResource {
 	@Produces(MediaType.BEETER_API_STING)
 	public Sting createSting(Sting sting) {
 
-		if(sting.getSubject().length() >100)
-		{
-			throw new BadRequestException("Subject length must be less or equal than 100 characters");
+		Statement stmt = null;
+
+		if (sting.getSubject().length() > 100) {
+			throw new BadRequestException(
+					"Subject length must be less or equal than 100 characters");
 		}
-		if(sting.getContent().length() >500)
-		{
-			throw new BadRequestException("Content length must be less or equal than 500 characters");
+		if (sting.getContent().length() > 500) {
+			throw new BadRequestException(
+					"Content length must be less or equal than 500 characters");
 		}
 		// realizamos conexion
 		Connection conn = null;
@@ -100,7 +148,7 @@ public class StingResource {
 		// leemos lo que nos manda y lo insertamos enla base de datos
 		try {
 			// realizamos la consulta
-			Statement stmt = conn.createStatement();
+			stmt = conn.createStatement();
 			String sql = "insert into stings (username, content, subject) values ('"
 					+ sting.getUsername()
 					+ "', '"
@@ -117,26 +165,31 @@ public class StingResource {
 				rs.close();
 				// TODO: Retrieve the created sting from the database to get all
 				// the remaining fields
-				sql = "select creation_timestamp from stings where stingid="
+				sql = "select last_modified from stings where stingid="
 						+ stingid;
 
 				rs = stmt.executeQuery(sql);
 				rs.next();
 				sting.setStingid(Integer.toString(stingid));
-				sting.setcreationTimestamp(rs
-						.getTimestamp("creation_timestamp"));
+				sting.setLastModified(rs.getTimestamp("last_modified"));
 			} else {
 				// TODO: Throw exception, something has failed. Don't do now
 			}
 
 			rs.close();
-			stmt.close();
-			// devolvemos a tomcat la conexion
-			conn.close();
+
 		} catch (SQLException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 			throw new InternalServerException(e.getMessage());
+		} finally {
+
+			try {
+				stmt.close();
+				conn.close();
+			} catch (Exception e) {
+				e.printStackTrace();
+			}
 		}
 		return sting;
 	}
@@ -144,8 +197,14 @@ public class StingResource {
 	@GET
 	@Path("/{stingid}")
 	@Produces(MediaType.BEETER_API_STING)
-	public Sting getSting(@PathParam("stingid") String stingid) {
+	public Response getSting(@PathParam("stingid") String stingid,
+			@Context Request req) {
+		// Create CacheControl
+		CacheControl cc = new CacheControl();
+		
 		Sting sting = new Sting();
+
+		Statement stmt = null;
 
 		// arrancamos la conexion
 		Connection conn = null;
@@ -160,30 +219,56 @@ public class StingResource {
 		// hacemso la consulta y el array de stings
 		try {
 			// creamos el statement y la consulta
-			Statement stmt = conn.createStatement();
+			stmt = conn.createStatement();
 			String sql = "select users.name, stings.* from users, stings where users.username=stings.username and stingid="
 					+ stingid;
 			// realizamos la consulta
 			ResultSet rs = stmt.executeQuery(sql);
-			rs.next();
-			// creamos el sting
-			sting.setUsername(rs.getString("username"));
-			sting.setAuthor(rs.getString("name"));
-			sting.setContent(rs.getString("content"));
-			sting.setSubject(rs.getString("subject"));
-			sting.setcreationTimestamp(rs.getTimestamp("creation_timestamp"));
 
+			if (rs.next()) {
+				// creamos el sting
+				sting.setUsername(rs.getString("username"));
+				sting.setAuthor(rs.getString("name"));
+				sting.setContent(rs.getString("content"));
+				sting.setSubject(rs.getString("subject"));
+				sting.setLastModified(rs.getTimestamp("last_modified"));
+
+			} else {
+				throw new StingNotFoundException();
+			}
 			rs.close();
-			stmt.close();
-			// devolvemos a tomcat la conexion
-			conn.close();
+
 		} catch (SQLException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 			throw new InternalServerException(e.getMessage());
+		} finally {
+
+			try {
+				stmt.close();
+				conn.close();
+			} catch (Exception e) {
+				e.printStackTrace();
+			}
 		}
 
-		return sting;
+		// Calculate the ETag on last modified date of user resource 
+		EntityTag eTag = new EntityTag(Integer.toString(sting.getLastModified().hashCode()));
+		
+		// Verify if it matched with etag available in http request
+		Response.ResponseBuilder rb = req.evaluatePreconditions(eTag);
+		
+		// If ETag matches the rb will be non-null; 
+	    // Use the rb to return the response without any further processing
+		if (rb != null) {
+			return rb.cacheControl(cc).tag(eTag).build();
+		}
+		
+		// If rb is null then either it is first time request; or resource is modified
+	    // Get the updated representation and return with Etag attached to it
+		rb = Response.ok(sting).cacheControl(cc).tag(eTag);
+	 
+		return rb.build();
 	}
 
 	@DELETE
@@ -191,6 +276,7 @@ public class StingResource {
 	public void deleteSting(@PathParam("stingid") String stingid) {
 		// TODO Delete record in database stings identified by stingid.
 		// arrancamos la conexion
+		Statement stmt = null;
 		Connection conn = null;
 		try {
 			conn = ds.getConnection();
@@ -203,22 +289,26 @@ public class StingResource {
 		// hacemso la consulta y el array de stings
 		try {
 			// creamos el statement y la consulta
-			Statement stmt = conn.createStatement();
+			stmt = conn.createStatement();
 			String sql = "Delete from  stings where stingid=" + stingid;
 			// realizamos la consulta
-			
+
 			int rows = stmt.executeUpdate(sql);
 			if (rows == 0)
 				throw new StingNotFoundException();
 
-
-			stmt.close();
-			// devolvemos a tomcat la conexion
-			conn.close();
 		} catch (SQLException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 			throw new InternalServerException(e.getMessage());
+		} finally {
+
+			try {
+				stmt.close();
+				conn.close();
+			} catch (Exception e) {
+				e.printStackTrace();
+			}
 		}
 	}
 
@@ -229,16 +319,17 @@ public class StingResource {
 	public Sting updateSting(@PathParam("stingid") String stingid, Sting sting) {
 		// TODO: Update in the database the record identified by stingid with
 		// the data values in sting
+		Statement stmt = null;
 
-		if(sting.getSubject().length() >100)
-		{
-			throw new BadRequestException("Subject length must be less or equal than 100 characters");
+		if (sting.getSubject().length() > 100) {
+			throw new BadRequestException(
+					"Subject length must be less or equal than 100 characters");
 		}
-		if(sting.getContent().length() >500)
-		{
-			throw new BadRequestException("Content length must be less or equal than 500 characters");
+		if (sting.getContent().length() > 500) {
+			throw new BadRequestException(
+					"Content length must be less or equal than 500 characters");
 		}
-		
+
 		// arrancamos la conexion
 		Connection conn = null;
 		try {
@@ -252,36 +343,39 @@ public class StingResource {
 		// hacemso la consulta
 		try {
 			// creamos el statement y la consulta
-			Statement stmt = conn.createStatement();
+			stmt = conn.createStatement();
 			String sql = "update  stings SET stings.username='"
-					+ sting.getUsername()					
-					+ "',stings.content='"
-					+ sting.getContent()
-					+ "', stings.subject='"
-					+ sting.getSubject()
-					+ "' where stingid="
-					+ stingid;
+					+ sting.getUsername() + "',stings.content='"
+					+ sting.getContent() + "', stings.subject='"
+					+ sting.getSubject() + "' where stingid=" + stingid;
 			// realizamos la consulta
-			
+
 			int rows = stmt.executeUpdate(sql);
 			if (rows == 0)
 				throw new StingNotFoundException();
-			
-			sql = "select creation_timestamp from stings where stingid="
-					+ stingid;
-			ResultSet rs = stmt.executeQuery(sql);
-			rs.next();
-			// creamos el sting			
-			sting.setcreationTimestamp(rs.getTimestamp("creation_timestamp"));
 
+			sql = "select last_modified from stings where stingid=" + stingid;
+			ResultSet rs = stmt.executeQuery(sql);
+			if (rs.next()) {
+				// creamos el sting
+				sting.setLastModified(rs.getTimestamp("last_modified"));
+			} else {
+				throw new StingNotFoundException();
+			}
 			rs.close();
-			stmt.close();
-			// devolvemos a tomcat la conexion
-			conn.close();
+
 		} catch (SQLException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 			throw new InternalServerException(e.getMessage());
+		} finally {
+
+			try {
+				stmt.close();
+				conn.close();
+			} catch (Exception e) {
+				e.printStackTrace();
+			}
 		}
 
 		return sting;

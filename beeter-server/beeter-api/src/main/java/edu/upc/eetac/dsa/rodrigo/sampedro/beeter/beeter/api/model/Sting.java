@@ -9,7 +9,7 @@ public class Sting {
 	private String author;
 	private String subject;
 	private String content;
-	private Date creationTimestamp;
+	private Date lastModified;
 	
 	public String getStingid() {
 		return stingid;
@@ -41,11 +41,11 @@ public class Sting {
 	public void setContent(String content) {
 		this.content = content;
 	}
-	public Date getcreationTimestamp() {
-		return creationTimestamp;
+	public Date getLastModified() {
+		return lastModified;
 	}
-	public void setcreationTimestamp(Date timestamp) {
-		creationTimestamp = timestamp;
+	public void setLastModified(Date timestamp) {
+		lastModified = timestamp;
 	}
 	
 
