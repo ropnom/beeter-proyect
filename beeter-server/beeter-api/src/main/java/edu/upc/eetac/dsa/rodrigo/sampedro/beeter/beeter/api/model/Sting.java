@@ -1,6 +1,10 @@
 package edu.upc.eetac.dsa.rodrigo.sampedro.beeter.beeter.api.model;
 
+import java.util.ArrayList;
 import java.util.Date;
+import java.util.List;
+
+import edu.upc.eetac.dsa.rodrigo.sampedro.beeter.beeter.api.links.Link;
 
 public class Sting {
 	
@@ -10,6 +14,7 @@ public class Sting {
 	private String subject;
 	private String content;
 	private Date lastModified;
+	private List<Link> links = new ArrayList<Link>();
 	
 	public String getStingid() {
 		return stingid;
@@ -46,6 +51,15 @@ public class Sting {
 	}
 	public void setLastModified(Date timestamp) {
 		lastModified = timestamp;
+	}
+	public List<Link> getLinks() {
+		return links;
+	}
+	public void setLinks(List<Link> rw) {
+		this.links = rw;
+	}
+	public void addLink(Link link) {
+		links.add(link);
 	}
 	
 

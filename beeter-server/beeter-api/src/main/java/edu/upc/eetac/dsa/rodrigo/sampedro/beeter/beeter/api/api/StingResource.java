@@ -20,12 +20,18 @@ import javax.ws.rs.core.Context;
 import javax.ws.rs.core.EntityTag;
 import javax.ws.rs.core.Request;
 import javax.ws.rs.core.Response;
+import javax.ws.rs.core.UriInfo;
 
+import edu.upc.eetac.dsa.rodrigo.sampedro.beeter.beeter.api.links.BeeterAPILinkBuilder;
+import edu.upc.eetac.dsa.rodrigo.sampedro.beeter.beeter.api.links.Link;
 import edu.upc.eetac.dsa.rodrigo.sampedro.beeter.beeter.api.model.Sting;
 import edu.upc.eetac.dsa.rodrigo.sampedro.beeter.beeter.api.model.StingCollection;
 
 @Path("/stings")
 public class StingResource {
+	
+	@Context
+	private UriInfo uriInfo;
 	private DataSource ds = DataSourceSPA.getInstance().getDataSource();
 
 	// realizamos los metodos GET que nos devuevle los stings de la base de
@@ -95,6 +101,9 @@ public class StingResource {
 				sting.setContent(rs.getString("content"));
 				sting.setSubject(rs.getString("subject"));
 				sting.setLastModified(rs.getTimestamp("last_modified"));
+				
+				//añadimos los links
+				sting.addLink(BeeterAPILinkBuilder.buildURISting(uriInfo, sting));
 
 				// añadimos el sting a la lista
 				stings.addSting(sting);
@@ -115,6 +124,21 @@ public class StingResource {
 			}
 		}
 
+		stings.addLink(BeeterAPILinkBuilder.buildURIStings(uriInfo, offset, length, username, "self"));
+		
+		if((ioffset-ilength)>0)
+		{
+			stings.addLink(BeeterAPILinkBuilder.buildURIStings(uriInfo, offset, length, username, "previous"));
+		}
+		else
+		{
+			int total = stings.getStings().size();
+			int puntero = total -ilength;
+			 
+			stings.addLink(BeeterAPILinkBuilder.buildURIStings(uriInfo, Integer.toString(puntero), length, username, "previous"));
+		}
+		
+		
 		// devolvemos el sting
 		return stings;
 	}
@@ -232,6 +256,8 @@ public class StingResource {
 				sting.setContent(rs.getString("content"));
 				sting.setSubject(rs.getString("subject"));
 				sting.setLastModified(rs.getTimestamp("last_modified"));
+				//añadimos los links
+				sting.addLink(BeeterAPILinkBuilder.buildURISting(uriInfo, sting));
 
 			} else {
 				throw new StingNotFoundException();
