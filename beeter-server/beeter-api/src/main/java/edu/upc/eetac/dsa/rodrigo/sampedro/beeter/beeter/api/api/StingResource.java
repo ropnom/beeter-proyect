@@ -30,11 +30,11 @@ import edu.upc.eetac.dsa.rodrigo.sampedro.beeter.beeter.api.model.StingCollectio
 
 @Path("/stings")
 public class StingResource {
-	
+
 	@Context
 	private UriInfo uriInfo;
 	private DataSource ds = DataSourceSPA.getInstance().getDataSource();
-	
+
 	@Context
 	private SecurityContext security;
 
@@ -105,9 +105,10 @@ public class StingResource {
 				sting.setContent(rs.getString("content"));
 				sting.setSubject(rs.getString("subject"));
 				sting.setLastModified(rs.getTimestamp("last_modified"));
-				
-				//añadimos los links
-				sting.addLink(BeeterAPILinkBuilder.buildURISting(uriInfo, sting));
+
+				// añadimos los links
+				sting.addLink(BeeterAPILinkBuilder
+						.buildURISting(uriInfo, sting));
 
 				// añadimos el sting a la lista
 				stings.addSting(sting);
@@ -128,21 +129,20 @@ public class StingResource {
 			}
 		}
 
-		stings.addLink(BeeterAPILinkBuilder.buildURIStings(uriInfo, offset, length, username, "self"));
-		
-		if((ioffset-ilength)>0)
-		{
-			stings.addLink(BeeterAPILinkBuilder.buildURIStings(uriInfo, offset, length, username, "previous"));
-		}
-		else
-		{
+		stings.addLink(BeeterAPILinkBuilder.buildURIStings(uriInfo, offset,
+				length, username, "self"));
+
+		if ((ioffset - ilength) > 0) {
+			stings.addLink(BeeterAPILinkBuilder.buildURIStings(uriInfo, offset,
+					length, username, "previous"));
+		} else {
 			int total = stings.getStings().size();
-			int puntero = total -ilength;
-			 
-			stings.addLink(BeeterAPILinkBuilder.buildURIStings(uriInfo, Integer.toString(puntero), length, username, "previous"));
+			int puntero = total - ilength;
+
+			stings.addLink(BeeterAPILinkBuilder.buildURIStings(uriInfo,
+					Integer.toString(puntero), length, username, "previous"));
 		}
-		
-		
+
 		// devolvemos el sting
 		return stings;
 	}
@@ -229,7 +229,7 @@ public class StingResource {
 			@Context Request req) {
 		// Create CacheControl
 		CacheControl cc = new CacheControl();
-		
+
 		Sting sting = new Sting();
 
 		Statement stmt = null;
@@ -260,8 +260,9 @@ public class StingResource {
 				sting.setContent(rs.getString("content"));
 				sting.setSubject(rs.getString("subject"));
 				sting.setLastModified(rs.getTimestamp("last_modified"));
-				//añadimos los links
-				sting.addLink(BeeterAPILinkBuilder.buildURISting(uriInfo, sting));
+				// añadimos los links
+				sting.addLink(BeeterAPILinkBuilder
+						.buildURISting(uriInfo, sting));
 
 			} else {
 				throw new StingNotFoundException();
@@ -282,22 +283,24 @@ public class StingResource {
 			}
 		}
 
-		// Calculate the ETag on last modified date of user resource 
-		EntityTag eTag = new EntityTag(Integer.toString(sting.getLastModified().hashCode()));
-		
+		// Calculate the ETag on last modified date of user resource
+		EntityTag eTag = new EntityTag(Integer.toString(sting.getLastModified()
+				.hashCode()));
+
 		// Verify if it matched with etag available in http request
 		Response.ResponseBuilder rb = req.evaluatePreconditions(eTag);
-		
-		// If ETag matches the rb will be non-null; 
-	    // Use the rb to return the response without any further processing
+
+		// If ETag matches the rb will be non-null;
+		// Use the rb to return the response without any further processing
 		if (rb != null) {
 			return rb.cacheControl(cc).tag(eTag).build();
 		}
-		
-		// If rb is null then either it is first time request; or resource is modified
-	    // Get the updated representation and return with Etag attached to it
+
+		// If rb is null then either it is first time request; or resource is
+		// modified
+		// Get the updated representation and return with Etag attached to it
 		rb = Response.ok(sting).cacheControl(cc).tag(eTag);
-	 
+
 		return rb.build();
 	}
 
@@ -359,10 +362,10 @@ public class StingResource {
 			throw new BadRequestException(
 					"Content length must be less or equal than 500 characters");
 		}
-		
-		if(security.isUserInRole("registered")){
-			if(security.getUserPrincipal().getName().equals(sting.getUsername()))
-			{
+
+		if (security.isUserInRole("registered")) {
+			if (security.getUserPrincipal().getName()
+					.equals(sting.getUsername())) {
 				throw new ForbiddenException("You are nor allowed");
 			}
 		}
@@ -416,6 +419,79 @@ public class StingResource {
 		}
 
 		return sting;
+	}
+
+	@GET
+	@Path("/search")
+	@Produces(MediaType.BEETER_API_STING_COLLECTION)
+	public StingCollection getSearch(@QueryParam("pattern") String pattern,
+			@QueryParam("offset") String offset,
+			@QueryParam("length") String length, @Context Request req) {
+		if ((offset == null) || (length == null))
+			throw new BadRequestException(
+					"offset and length are mandatory parameters");
+		int ioffset, ilength;
+		try {
+			ioffset = Integer.parseInt(offset);
+			if (ioffset < 0)
+				throw new NumberFormatException();
+		} catch (NumberFormatException e) {
+			throw new BadRequestException(
+					"offset must be an integer greater or equal than 0.");
+		}
+		try {
+			ilength = Integer.parseInt(length);
+			if (ilength < 1)
+				throw new NumberFormatException();
+		} catch (NumberFormatException e) {
+			throw new BadRequestException(
+					"length must be an integer greater or equal than 0.");
+		}
+
+		// TODO: Retrieve all stings stored in the database, instantiate one
+		// Sting for each one and store them in the StingCollection.
+		
+		StingCollection stings = new StingCollection();
+		Connection con = null;
+		Statement stmt = null;
+		try {
+			con = ds.getConnection();
+			stmt = con.createStatement();
+		} catch (SQLException e) {
+			throw new ServiceUnavailableException(e.getMessage());
+		}
+
+		try {
+			String query = "SELECT stings.*, users.name FROM stings INNER JOIN users ON (users.username=stings.username) WHERE subject LIKE '%"
+					+ pattern
+					+ "%' OR content LIKE '%"
+					+ pattern
+					+ "%' ORDER BY last_modified desc LIMIT "
+					+ offset
+					+ ", " + length + ";";
+			ResultSet rs = stmt.executeQuery(query);
+			while (rs.next()) {
+				Sting s = new Sting();
+				s.setAuthor(rs.getString("username"));
+				s.setContent(rs.getString("content"));
+				s.setLastModified(rs.getTimestamp("last_modified"));
+				s.setStingid(rs.getString("stingid"));
+				s.setSubject(rs.getString("subject"));
+				s.setUsername(rs.getString("username"));
+				s.addLink(BeeterAPILinkBuilder.buildURISting(uriInfo, s));
+				stings.addSting(s);
+			}
+			rs.close();
+		} catch (SQLException e) {
+			throw new InternalServerException(e.getMessage());
+		} finally {
+			try {
+				con.close();
+				stmt.close();
+			} catch (Exception e) {
+			}
+		}
+		return stings;
 	}
 
 }

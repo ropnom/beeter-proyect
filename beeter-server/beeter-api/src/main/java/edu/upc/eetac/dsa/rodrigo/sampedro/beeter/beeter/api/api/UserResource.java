@@ -181,6 +181,7 @@ public class UserResource {
 	public UserCollection getSearch(@QueryParam("pattern") String pattern,
 			@QueryParam("offset") String offset,
 			@QueryParam("length") String length, @Context Request req) {
+		
 		if ((offset == null) || (length == null))
 			throw new BadRequestException(
 					"offset and length are mandatory parameters");
