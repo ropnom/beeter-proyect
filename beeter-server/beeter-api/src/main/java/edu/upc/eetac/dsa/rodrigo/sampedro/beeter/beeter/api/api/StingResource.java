@@ -8,6 +8,7 @@ import java.sql.Statement;
 import javax.sql.DataSource;
 import javax.ws.rs.Consumes;
 import javax.ws.rs.DELETE;
+import javax.ws.rs.ForbiddenException;
 import javax.ws.rs.GET;
 import javax.ws.rs.POST;
 import javax.ws.rs.PUT;
@@ -20,10 +21,10 @@ import javax.ws.rs.core.Context;
 import javax.ws.rs.core.EntityTag;
 import javax.ws.rs.core.Request;
 import javax.ws.rs.core.Response;
+import javax.ws.rs.core.SecurityContext;
 import javax.ws.rs.core.UriInfo;
 
 import edu.upc.eetac.dsa.rodrigo.sampedro.beeter.beeter.api.links.BeeterAPILinkBuilder;
-import edu.upc.eetac.dsa.rodrigo.sampedro.beeter.beeter.api.links.Link;
 import edu.upc.eetac.dsa.rodrigo.sampedro.beeter.beeter.api.model.Sting;
 import edu.upc.eetac.dsa.rodrigo.sampedro.beeter.beeter.api.model.StingCollection;
 
@@ -33,6 +34,9 @@ public class StingResource {
 	@Context
 	private UriInfo uriInfo;
 	private DataSource ds = DataSourceSPA.getInstance().getDataSource();
+	
+	@Context
+	private SecurityContext security;
 
 	// realizamos los metodos GET que nos devuevle los stings de la base de
 	// datos
@@ -354,6 +358,13 @@ public class StingResource {
 		if (sting.getContent().length() > 500) {
 			throw new BadRequestException(
 					"Content length must be less or equal than 500 characters");
+		}
+		
+		if(security.isUserInRole("registered")){
+			if(security.getUserPrincipal().getName().equals(sting.getUsername()))
+			{
+				throw new ForbiddenException("You are nor allowed");
+			}
 		}
 
 		// arrancamos la conexion

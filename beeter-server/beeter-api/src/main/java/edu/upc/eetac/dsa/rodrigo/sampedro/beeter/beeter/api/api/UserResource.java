@@ -127,8 +127,8 @@ public class UserResource {
 			int rows = stmt.executeUpdate(update);
 			if (rows == 0)
 				throw new UserNotFoundException();
-			String query = "SELECT * FROM users WHERE username=" + username
-					+ ";";
+			String query = "SELECT * FROM users WHERE username='" + username
+					+ "';";
 			ResultSet rs = stmt.executeQuery(query);
 			if (rs.next()) {
 				user.setName(rs.getString("name"));
