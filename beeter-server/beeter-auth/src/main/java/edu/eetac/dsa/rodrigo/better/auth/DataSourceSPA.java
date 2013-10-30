@@ -16,7 +16,7 @@ public class DataSourceSPA {
 		try {
 			envContext = new InitialContext();
 			Context initContext = (Context) envContext.lookup("java:/comp/env");
-			dataSource = (DataSource) initContext.lookup("jdbc/realm");
+			dataSource = (DataSource) initContext.lookup("jdbc/realmdb");
 		} catch (NamingException e1) {
 			e1.printStackTrace();
 		}
