@@ -13,6 +13,7 @@
 <title>Página de Registro de Beeter Server</title>
 </head>
 <body>
+
 	<p>div class="container">
 	<div class="row">
 		<div class="col-sm-6 col-md-4 col-md-offset-4">
