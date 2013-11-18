@@ -51,7 +51,7 @@
 
 		<init-param>
 			<param-name>cors.exposedHeaders</param-name>
-		<param-value>Content-Type, Access-Control-Allow-Origin,Access-Control-Allow-Credentials</param-value>
+			<param-value>Content-Type, Access-Control-Allow-Origin,Access-Control-Allow-Credentials</param-value>
 		</init-param>
 
 		<init-param>
@@ -77,10 +77,10 @@
 		<!-- <realm-name>westerios</realm-name> -->
 	</login-config>
 	<security-role>
-		<role-name>registered</role-name>		
+		<role-name>registered</role-name>
 	</security-role>
 	<security-role>
-		<role-name>admin</role-name>		
+		<role-name>admin</role-name>
 	</security-role>
 
 	<security-constraint>
@@ -100,34 +100,33 @@
 			<http-method>POST</http-method>
 			<http-method>PUT</http-method>
 			<http-method>DELETE</http-method>
-		</web-resource-collection>		
-		<auth-constraint>
-			<role-name>registered</role-name>
-		</auth-constraint>
-	</security-constraint>
-	<security-constraint>
-		<web-resource-collection>
-			<web-resource-name>Ususarios-normales</web-resource-name>
-			<url-pattern>/users/*</url-pattern>
-			<http-method>GET</http-method>
-			<http-method>PUT</http-method>			
 		</web-resource-collection>
 		<auth-constraint>
 			<role-name>registered</role-name>
 		</auth-constraint>
 	</security-constraint>
+
 	<security-constraint>
 		<web-resource-collection>
-			<web-resource-name>AdminSecurity</web-resource-name>
+			<web-resource-name>Users-registered</web-resource-name>
 			<url-pattern>/users/*</url-pattern>
 			<http-method>GET</http-method>
-			<http-method>POST</http-method>
 			<http-method>PUT</http-method>
+		</web-resource-collection>
+		<auth-constraint>
+			<role-name>registered</role-name>
+		</auth-constraint>
+	</security-constraint>
+
+	<security-constraint>
+		<web-resource-collection>
+			<web-resource-name>Users-admin</web-resource-name>
+			<url-pattern>/users/*</url-pattern>
+			<http-method>POST</http-method>
 			<http-method>DELETE</http-method>
 		</web-resource-collection>
 		<auth-constraint>
 			<role-name>admin</role-name>
 		</auth-constraint>
 	</security-constraint>
-
 </web-app>
