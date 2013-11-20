@@ -1,14 +1,14 @@
-var API_BASE_URL = "http://localhost:8000/better-api";
+var API_BASE_URL = "http://localhost:8000/beeter-api";
  
  
 $("#button_get_sting").click(function(e){
 	e.preventDefault();
-	getSting(85);
+	getSting(46);
 });
  
 $("#button_delete_sting").click(function(e){
 	e.preventDefault();
-	deleteSting(85);
+	deleteSting(46);
 });
  
 $("#button_post_sting").click(function(e){
@@ -19,32 +19,29 @@ $("#button_post_sting").click(function(e){
  
  
 function getSting(stingid) {
-	//var url = "/stings/"+stingid;
-	var url = "http://localhost:8000/better-api/stings/85";
+	var url = API_BASE_URL + "/stings/"+stingid;
+	//var url = "http://localhost:8000/better-api/stings/85";
  
 	$.ajax({
 		url : url,
 		type : 'GET',
-		crossDomain : true,
-		dataType : 'json',
+		crossDomain : true,	
 		username : 'alicia',
 		password : 'alicia',
+		dataType : 'json',
 		headers : {
 			"Accept" : "application/vnd.beeter.api.sting+json",
-			//"Access-Control-Allow-Origin" : "*"
 		},
-		beforeSend: function (request)
-	    {
-	        request.withCredentials = true;
-	        request.setRequestHeader("Authorization", "Basic "+ btoa('alicia:alicia'));
-	    },
+		
 	})
 	.done(function (data, status, jqxhr) {
 		var sting = $.parseJSON(jqxhr.responseText);
+		$("#resultado").text("Data: OK" );
 		console.log(sting);
 	})
     .fail(function (jqXHR, textStatus) {
 		console.log(textStatus);
+		$("#resultado").text("Data: FAIL" );
 	});
  
 }
@@ -56,8 +53,13 @@ function deleteSting(stingid) {
 		url : url,
 		type : 'DELETE',
 		crossDomain : true,
-		username : 'username',
-		password : 'password',
+		username : 'alicia',
+		password : 'alicia',
+		beforeSend: function (request)
+	    {
+	        request.withCredentials = true;
+	        request.setRequestHeader("Authorization", "Basic"+ btoa('alicia:alicia'));
+	    },
 	})
     .done(function (data, status, jqxhr) {
 		console.log(status);
