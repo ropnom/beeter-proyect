@@ -2,45 +2,56 @@
 <html lang="es">
 <head>
 <meta http-equiv="Content-Type" content="text/html;charset=UTF-8">
+<link rel="stylesheet"
+	href="//netdna.bootstrapcdn.com/bootstrap/3.0.2/css/bootstrap.min.css">
+
+<!-- Optional theme -->
+<link rel="stylesheet"
+	href="//netdna.bootstrapcdn.com/bootstrap/3.0.2/css/bootstrap-theme.min.css">
 <title>Beeter</title>
 
 </head>
 <body>
-<form action="datos">
-	<p>
-	<div class="control-group">
-		Introduzca el ID: <input type='text' id='id' name='id' size='3' value='' />
-	</div>
-	<p>
-	<div class="control-group">
-		Introduzca el Autor: <input type='text' id='autor' name='autor' size='12'
-			value='alicia' />
-	</div>
-	<p>
-	<div class="control-group">
-		Introduzca Asunto: <input type='text' id='subjet' name='subjet' size='25'
-			value='Frase de machado' />
-	</div>
-	<p>
-	<div class="control-group">
-		Introduzca el Content: <input type='text' id='contenido' name='contenido' size='50'
-			value='Machado no se mancha las manos usa sicarios' />
-	</div>
-	<p>
-	<p>
-	<p>
-	<div class="control-group">
-		Introduzca num lista: <input type='text' id='num' name='num' size='3'
-			value='5' />
-	</div>
-	<p>
-	<div class="control-group">
-		Introduzca offset: <input type='text' id='offset' name='offset' size='3'
-			value='0' />
-	</div>
-			
+<center>
+<div class="control-group">
+	<form id="get" action="datos">
+		<p>
+		
+			Introduzca el ID: <input type='text' id='id' name='id' size='3'
+				value='31' />
+		
+		<p>
+		
+			Introduzca el Autor: <input type='text' id='autor' name='autor'
+				size='12' value='alicia' />
+		
+		<p>
+		
+			Introduzca Asunto: <input type='text' id='subjet' name='subjet'
+				size='25' value='Frase de machado' />
+		
+		<p>
+		
+			Introduzca el Content: <input type='text' id='contenido'
+				name='contenido' size='50'
+				value='Machado no se mancha las manos usa sicarios' />
+		
+		<p>
+		<p>
+		<p>
+		
+			Introduzca num lista: <input type='text' id='num' name='num' size='3'
+				value='5' />
+		
+		<p>
+		
+			Introduzca offset: <input type='text' id='offset' name='offset'
+				size='3' value='0' />
+		
+
 	</form>
-	
+	</div>
+
 	<div id='jsontext'></div>
 	<h1>Sting</h1>
 	<button id="button_get_sting">Get Sting</button>
@@ -48,23 +59,15 @@
 	<button id="button_delete_sting">Delete Sting</button>
 	<button id="button_post_sting">Post Sting</button>
 	<button id="button_list_sting">Lista</button>
-	<div id='resultado'></div>
-	<div id='update'>
-	<p>
-		ID: <div id='identificador'></div>
-	<p>
-		Autor: <input type='text' id='get_autor' size='15' value='alicia' />
-		<p>
-		Titulo: <input type='text' id='get_subjet' size='15' value='' />
-		<p>
-		Contenido: <input type='text' id='get_contenido' size='25' value='' />
 	
-	</div>
+	<form class="panel panel-primary" action="">
+	<div id='resultado'></div>
+	</form>
 	<!-- SCRIPTS -->
 	<script
 		src="http://ajax.googleapis.com/ajax/libs/jquery/1.10.2/jquery.min.js"></script>
 	<script src="http://ajax.aspnetcdn.com/ajax/jquery.validate/1.11.1/jquery.validate.js"></script>
 	<script type="text/javascript" src="beeter.js"></script>
-	
+	</center>
 </body>
 </html>
