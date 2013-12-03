@@ -6,26 +6,65 @@
 
 </head>
 <body>
+<form action="datos">
 	<p>
-		Introduzca el ID: <input type='text' id='id' size='3' value='47' />
+	<div class="control-group">
+		Introduzca el ID: <input type='text' id='id' name='id' size='3' value='' />
+	</div>
 	<p>
-		Introduzca el Autor: <input type='text' id='autor' size='12'
+	<div class="control-group">
+		Introduzca el Autor: <input type='text' id='autor' name='autor' size='12'
 			value='alicia' />
+	</div>
 	<p>
-		Introduzca Asunto: <input type='text' id='subjet' size='25'
+	<div class="control-group">
+		Introduzca Asunto: <input type='text' id='subjet' name='subjet' size='25'
 			value='Frase de machado' />
+	</div>
 	<p>
-		Introduzca el Content: <input type='text' id='contenido' size='50'
+	<div class="control-group">
+		Introduzca el Content: <input type='text' id='contenido' name='contenido' size='50'
 			value='Machado no se mancha las manos usa sicarios' />
+	</div>
+	<p>
+	<p>
+	<p>
+	<div class="control-group">
+		Introduzca num lista: <input type='text' id='num' name='num' size='3'
+			value='5' />
+	</div>
+	<p>
+	<div class="control-group">
+		Introduzca offset: <input type='text' id='offset' name='offset' size='3'
+			value='0' />
+	</div>
+			
+	</form>
+	
 	<div id='jsontext'></div>
 	<h1>Sting</h1>
 	<button id="button_get_sting">Get Sting</button>
+	<button id="button_update_sting">UpdateSting</button>
 	<button id="button_delete_sting">Delete Sting</button>
 	<button id="button_post_sting">Post Sting</button>
+	<button id="button_list_sting">Lista</button>
 	<div id='resultado'></div>
+	<div id='update'>
+	<p>
+		ID: <div id='identificador'></div>
+	<p>
+		Autor: <input type='text' id='get_autor' size='15' value='alicia' />
+		<p>
+		Titulo: <input type='text' id='get_subjet' size='15' value='' />
+		<p>
+		Contenido: <input type='text' id='get_contenido' size='25' value='' />
+	
+	</div>
 	<!-- SCRIPTS -->
 	<script
 		src="http://ajax.googleapis.com/ajax/libs/jquery/1.10.2/jquery.min.js"></script>
+	<script src="http://ajax.aspnetcdn.com/ajax/jquery.validate/1.11.1/jquery.validate.js"></script>
 	<script type="text/javascript" src="beeter.js"></script>
+	
 </body>
 </html>

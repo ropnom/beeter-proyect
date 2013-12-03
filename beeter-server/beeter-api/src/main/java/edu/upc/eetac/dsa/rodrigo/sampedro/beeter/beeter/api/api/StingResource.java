@@ -100,12 +100,13 @@ public class StingResource {
 			while (rs.next()) {
 				// creamos el sting
 				Sting sting = new Sting();
+				sting.setStingid(rs.getString("stingid"));
 				sting.setUsername(rs.getString("username"));
 				sting.setAuthor(rs.getString("name"));
 				sting.setContent(rs.getString("content"));
 				sting.setSubject(rs.getString("subject"));
 				sting.setLastModified(rs.getTimestamp("last_modified"));
-
+				
 				// añadimos los links
 				sting.addLink(BeeterAPILinkBuilder
 						.buildURISting(uriInfo, sting));
@@ -260,10 +261,9 @@ public class StingResource {
 				sting.setContent(rs.getString("content"));
 				sting.setSubject(rs.getString("subject"));
 				sting.setLastModified(rs.getTimestamp("last_modified"));
-				// añadimos los links
+				// añadimos los links				
 				sting.addLink(BeeterAPILinkBuilder
 						.buildURISting(uriInfo, sting));
-
 			} else {
 				throw new StingNotFoundException();
 			}
