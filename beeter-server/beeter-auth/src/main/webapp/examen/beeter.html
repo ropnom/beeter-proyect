@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta http-equiv="Content-Type" content="text/html;charset=UTF-8">
+<link rel="stylesheet"
+	href="//netdna.bootstrapcdn.com/bootstrap/3.0.2/css/bootstrap.min.css">
+
+<!-- Optional theme -->
+<link rel="stylesheet"
+	href="//netdna.bootstrapcdn.com/bootstrap/3.0.2/css/bootstrap-theme.min.css">
+<title>Beeter</title>
+
+</head>
+<body>
+	<center>
+		<div id='login'class="account-wall">
+			<img class="profile-img"
+				src="http://colgadosporelfutbol.com/wp-content/uploads/2013/06/julio-iglesias-311211-472x300.jpg"
+				alt="">
+			<form class="form-signin">
+				<input type="text" class="form-control" id="username" name="username"
+					placeholder="Email" required="" autofocus=""> <input
+					type="password" id="pass" class="form-control" name="userpass"
+					placeholder="Password" required=""> <input type="hidden"
+					value="LOGIN">
+				<button id="button_login" class="btn btn-lg btn-primary btn-block" type="submit">
+					Identificarme</button>
+				<span class="clearfix"></span>
+			</form>
+		</div>
+
+<div id="cosas">
+		<div class="control-group">
+			<form id="get" action="datos">
+				Introduzca el nombre repositorio: <input type='text' id='repo'
+					name='repo' size='10' value='ejemplo1' /> Introduzca Descripcion:
+				<input type='text' id='descripcion' name='descripcion' size='35'
+					value='Ejemplo del examen javascrip' />
+			</form>
+		</div>
+
+		<div id='jsontext'></div>
+		<h1>Git Hub</h1>
+		<button id="button_get_sting" class="btn btn-default btn-large">Get
+			Repo</button>
+		<button id="button_update_sting" class="btn btn-default btn-large">Update
+			Repo</button>
+		<button id="button_delete_sting" class="btn btn-default btn-large">Delete
+			Repo</button>
+		<button id="button_post_sting" class="btn btn-default btn-large">Post
+			Repo</button>
+		<button id="button_list_sting" class="btn btn-default btn-large">Listar</button>
+
+		<form class="panel panel-primary" action="">
+			<div id='resultado'></div>
+		</form>
+		<!-- SCRIPTS -->
+		<script
+			src="http://ajax.googleapis.com/ajax/libs/jquery/1.10.2/jquery.min.js"></script>
+		<script
+			src="http://ajax.aspnetcdn.com/ajax/jquery.validate/1.11.1/jquery.validate.js"></script>
+		<script type="text/javascript" src="beeter.js"></script>
+	</center>
+	
+	</div>
+</body>
+
+</html>

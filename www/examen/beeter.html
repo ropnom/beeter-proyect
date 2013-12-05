@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta http-equiv="Content-Type" content="text/html;charset=UTF-8">
+<link rel="stylesheet"
+	href="//netdna.bootstrapcdn.com/bootstrap/3.0.2/css/bootstrap.min.css">
+
+<!-- Optional theme -->
+<link rel="stylesheet"
+	href="//netdna.bootstrapcdn.com/bootstrap/3.0.2/css/bootstrap-theme.min.css">
+<title>Beeter</title>
+
+</head>
+<body>
+<center>
+<div class="control-group">
+	<form id="get" action="datos">
+		<p>
+		
+			Introduzca el ID: <input type='text' id='id' name='id' size='3'
+				value='31' />
+		
+		<p>
+		
+			Introduzca el Autor: <input type='text' id='autor' name='autor'
+				size='12' value='alicia' />
+		
+		<p>
+		
+			Introduzca Asunto: <input type='text' id='subjet' name='subjet'
+				size='25' value='Frase de machado' />
+		
+		<p>
+		
+			Introduzca el Content: <input type='text' id='contenido'
+				name='contenido' size='50'
+				value='Machado no se mancha las manos usa sicarios' />
+		
+		<p>
+		<p>
+		<p>
+		
+			Introduzca num lista: <input type='text' id='num' name='num' size='3'
+				value='5' />
+		
+		<p>
+		
+			Introduzca offset: <input type='text' id='offset' name='offset'
+				size='3' value='0' />
+		
+
+	</form>
+	</div>
+
+	<div id='jsontext'></div>
+	<h1>Sting</h1>
+	<button id="button_get_sting">Get Sting</button>
+	<button id="button_update_sting">UpdateSting</button>
+	<button id="button_delete_sting">Delete Sting</button>
+	<button id="button_post_sting">Post Sting</button>
+	<button id="button_list_sting">Lista</button>
+	
+	<form class="panel panel-primary" action="">
+	<div id='resultado'></div>
+	</form>
+	<!-- SCRIPTS -->
+	<script
+		src="http://ajax.googleapis.com/ajax/libs/jquery/1.10.2/jquery.min.js"></script>
+	<script src="http://ajax.aspnetcdn.com/ajax/jquery.validate/1.11.1/jquery.validate.js"></script>
+	<script type="text/javascript" src="beeter.js"></script>
+	</center>
+</body>
+</html>
