@@ -5,23 +5,61 @@ import java.net.Authenticator;
 import java.net.MalformedURLException;
 import java.net.PasswordAuthentication;
 import java.net.URL;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Properties;
 
 import android.app.ListActivity;
 import android.app.ProgressDialog;
+import android.content.Context;
+import android.content.Intent;
+import android.content.SharedPreferences;
 import android.content.res.AssetManager;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.Menu;
+import android.view.MenuItem;
+import android.view.View;
 import android.widget.ArrayAdapter;
+import android.widget.ListView;
 import android.widget.ProgressBar;
+import android.widget.TextView;
 import edu.upc.eetac.dsa.rodrigo.sampedro.beeter.android.api.BeeterAPI;
 import edu.upc.eetac.dsa.rodrigo.sampedro.beeter.android.api.Sting;
 import edu.upc.eetac.dsa.rodrigo.sampedro.beeter.android.api.StingCollection;
  
 public class Beeter extends ListActivity {
 	
+	@Override
+	public boolean onCreateOptionsMenu(Menu menu) {
+		getMenuInflater().inflate(R.menu.beeter_menu, menu);
+		return true;
+	}
+	@Override
+	public boolean onOptionsItemSelected(MenuItem item) {
+		switch (item.getItemId()) {
+		case R.id.miWrite:
+			URL url = null;
+			try {
+				url = new URL("http://" + serverAddress + ":" + serverPort
+						+ "/beeter-api/stings");
+			} catch (MalformedURLException e) {
+				Log.d(TAG, e.getMessage(), e);
+			}
+			Intent intent = new Intent(this, WriteSting.class);
+			intent.putExtra("url", url);
+			startActivity(intent);
+			
+			return true;
+	 
+		default:
+			return super.onOptionsItemSelected(item);
+		}
+	 
+	}
+
+
 	String serverAddress;
 	String serverPort;
 	BeeterAPI api;
@@ -44,48 +82,40 @@ public class Beeter extends ListActivity {
  
 	/** Called when the activity is first created. */
 	@Override
-	public void onCreate(Bundle savedInstanceState) {		
-		//llamada ala superior, ponemos el contentview el layout
+	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
-		
-		//iniciamos le log del logcat para verlo enel debug
 		Log.d(TAG, "onCreate()");
-		
-		//assesmanager te devuevle el path de config de la aplicacion
+	 
 		AssetManager assetManager = getAssets();
-		//creamos un objeto de propiedades
 		Properties config = new Properties();
 		try {
-			//cargamos las propiedades
 			config.load(assetManager.open("config.properties"));
 			serverAddress = config.getProperty("server.address");
 			serverPort = config.getProperty("server.port");
-			//printamos lo cargado	 
+	 
 			Log.d(TAG, "Configured server " + serverAddress + ":" + serverPort);
 		} catch (IOException e) {
 			Log.e(TAG, e.getMessage(), e);
-			//finalizamos la actividad si ha hay une error
 			finish();
 		}
-		
+		setContentView(R.layout.beeter_layout);
+	 
+		stingList = new ArrayList<Sting>();
+		adapter = new StingAdaptar(this, stingList);
+		setListAdapter(adapter);
+	 
+		SharedPreferences prefs = getSharedPreferences("beeter-profile", Context.MODE_PRIVATE);
+		final String username = prefs.getString("username", null);
+		final String password = prefs.getString("password", null);
+	 
 		Authenticator.setDefault(new Authenticator() {
 			protected PasswordAuthentication getPasswordAuthentication() {
-				return new PasswordAuthentication("alicia", "alicia"
+				return new PasswordAuthentication(username, password
 						.toCharArray());
 			}
 		});
-		setContentView(R.layout.beeter_layout);
-		//instancia el contenedor indicando el contesto, la actividad
-		// Ponemos  (contexto actividad, elemnto que queremos pintar el layaout el como se muestran lso datos , los datos)
-		//adapter = new ArrayAdapter<String>(this,
-		//		android.R.layout.simple_list_item_1, items);
-		
-		stingList = new ArrayList<Sting>();
-		adapter = new StingAdaptar(this, stingList);
-		
-		//este metodo existe porke heredados de listactivity que indicamos cual es el adaptador que aplica ala list view
-		setListAdapter(adapter);
-		
+		Log.d(TAG, "authenticated with " + username + ":" + password);
+	 
 		api = new BeeterAPI();
 		URL url = null;
 		try {
@@ -96,7 +126,39 @@ public class Beeter extends ListActivity {
 			finish();
 		}
 		(new FetchStingsTask()).execute(url);
+	 
 	}
+	@Override
+	protected void onListItemClick(ListView l, View v, int position, long id) {
+		Sting sting = stingList.get(position);
+	 
+		/*// HATEOAS version
+		URL url = null;
+		try {
+			url = new URL(sting.getLinks().get(0).getUri());
+		} catch (MalformedURLException e) {
+			return;
+		}
+		*/
+	 
+		// No HATEOAS
+		 URL url = null;
+		try {
+		url = new URL("http://" + serverAddress + ":" + serverPort
+		+ "/beeter-api/stings/" + id);
+		} catch (MalformedURLException e) {
+		 return;
+		}
+		Log.d(TAG, url.toString());
+		
+		Intent intent = new Intent(this, StingDetail.class);
+		intent.putExtra("url", url.toString());
+		startActivity(intent);
+	}
+	
+	
+	
+	
 	
 	private void addStings(StingCollection stings){
 		stingList.addAll(stings.getStings());
@@ -141,6 +203,8 @@ public class Beeter extends ListActivity {
 			pd.setIndeterminate(true);
 			pd.show();
 		}
+		
+		
 		
 	}
 

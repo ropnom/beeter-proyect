@@ -256,6 +256,7 @@ public class StingResource {
 
 			if (rs.next()) {
 				// creamos el sting
+				sting.setStingid(stingid);
 				sting.setUsername(rs.getString("username"));
 				sting.setAuthor(rs.getString("name"));
 				sting.setContent(rs.getString("content"));
